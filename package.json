@@ -11,18 +11,19 @@
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.39.7",
-    "dexie": "^4.0.11",
+    "browser-image-compression": "^2.0.2",
+    "dexie": "^3.2.4",
     "glob": "^11.0.1",
     "inflight": "^1.0.6",
     "jspdf": "^2.5.1",
     "jspdf-autotable": "^3.8.4",
-    "lucide-react": "^0.475.0",
+    "lucide-react": "^0.344.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-hot-toast": "^2.4.1",
     "react-router-dom": "^6.22.2",
     "uuid": "^9.0.1",
-    "vite-plugin-pwa": "^0.21.1",
+    "vite-plugin-pwa": "^0.19.8",
     "zustand": "^4.5.1"
   },
   "devDependencies": {

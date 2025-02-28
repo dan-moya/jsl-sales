@@ -92,7 +92,7 @@ export default function DashboardStats() {
 								<h3 className="font-bold text-lg">AYER</h3>
 								<button
 									onClick={() => setSelectedPeriod('yesterday')}
-									className="text-xs bg-sky-500 text-white px-2 py-1 rounded hover:bg-sky-600"
+									className="text-xs font-semibold bg-sky-500 text-white px-2 py-1 rounded-lg hover:bg-sky-600"
 								>
 									PDF
 								</button>
@@ -115,7 +115,7 @@ export default function DashboardStats() {
 								<h3 className="font-bold text-lg">ESTA SEMANA</h3>
 								<button
 									onClick={() => setSelectedPeriod('week')}
-									className="text-xs bg-purple-500 text-white px-2 py-1 rounded hover:bg-purple-600"
+									className="text-xs font-semibold bg-purple-500 text-white px-2 py-1 rounded-lg hover:bg-purple-600"
 								>
 									PDF
 								</button>
@@ -138,7 +138,7 @@ export default function DashboardStats() {
 								<h3 className="font-bold text-lg">ESTE MES</h3>
 								<button
 									onClick={() => setSelectedPeriod('month')}
-									className="text-xs bg-emerald-500 text-white px-2 py-1 rounded hover:bg-emerald-600"
+									className="text-xs font-semibold bg-emerald-500 text-white px-2 py-1 rounded-lg hover:bg-emerald-600"
 								>
 									PDF
 								</button>
@@ -161,7 +161,7 @@ export default function DashboardStats() {
 								<h3 className="font-bold text-lg">TOTAL</h3>
 								<button
 									onClick={() => setSelectedPeriod('total')}
-									className="text-xs bg-fuchsia-500 text-white px-2 py-1 rounded hover:bg-fuchsia-600"
+									className="text-xs font-semibold bg-fuchsia-500 text-white px-2 py-1 rounded-lg hover:bg-fuchsia-600"
 								>
 									PDF
 								</button>

@@ -280,7 +280,7 @@ export const useSalesStore = create<SalesState>((set, get) => ({
 
 		try {
 			await db.sales.add(newSale);
-			console.log('[OFFLINE] Venta guardada:', saleId);
+			/* console.log('[OFFLINE] Venta guardada:', saleId); */
 
 			for (const item of saleItems) {
 				const product = await db.products.get(item.product_id);
@@ -334,7 +334,7 @@ export const useSalesStore = create<SalesState>((set, get) => ({
 				for (const item of saleItems) {
 					await db.addPendingOperation('create', 'sale_items', item, 2, saleId, groupId);
 				}
-				console.log('[OFFLINE] Operaciones pendientes guardadas');
+				/* console.log('[OFFLINE] Operaciones pendientes guardadas'); */
 			}
 
 			await get().loadSales();
@@ -344,6 +344,39 @@ export const useSalesStore = create<SalesState>((set, get) => ({
 			throw error;
 		}
 	},
+
+	/** new */
+	// Función para archivar ventas antiguas
+	archiveOldSales: async (monthsOld: number) => {
+		if (!get().isOnline) return;
+	
+		try {
+		  await supabase.rpc('archive_old_sales', { months_old: monthsOld });
+		  await get().loadSales(); // Recargar ventas después del archivado
+		} catch (error) {
+		  console.error('Error al archivar ventas:', error);
+		  throw error;
+		}
+	  },
+
+	    // Función para obtener estadísticas usando la vista materializada
+  getMonthlyStats: async () => {
+    if (!get().isOnline) return null;
+
+    try {
+      const { data, error } = await supabase
+        .from('sales_stats')
+        .select('*')
+        .order('month', { ascending: false });
+
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      console.error('Error al obtener estadísticas:', error);
+      return null;
+    }
+  },
+	/** new */
 
 	deleteSale: async (saleId: string) => {
 		try {
@@ -419,11 +452,11 @@ export const useSalesStore = create<SalesState>((set, get) => ({
 
 	updateSale: async (updatedSale: SaleWithItems) => {
 		try {
-			console.log('[UPDATE_SALE] Iniciando actualización de venta:', {
+			/* console.log('[UPDATE_SALE] Iniciando actualización de venta:', {
 				id: updatedSale.id,
 				items: updatedSale.items.length,
 				isOnline: get().isOnline,
-			});
+			}); */
 
 			const originalSale = get().sales.find((s) => s.id === updatedSale.id);
 			if (!originalSale) {
@@ -601,10 +634,10 @@ export const useSalesStore = create<SalesState>((set, get) => ({
 
 		try {
 			// Primero sincronizar los productos
-			console.log('[SYNC] Sincronizando productos primero...');
+			/* console.log('[SYNC] Sincronizando productos primero...'); */
 			await useProductsStore.getState().syncPendingOperations();
 
-			console.log('[SYNC] Iniciando sincronización de ventas...');
+			/* console.log('[SYNC] Iniciando sincronización de ventas...'); */
 			const pendingOperations = await db.getPendingOperations();
 
 			// Agrupar operaciones por groupId
@@ -620,7 +653,7 @@ export const useSalesStore = create<SalesState>((set, get) => ({
 			// Procesar cada grupo de operaciones
 			for (const [groupId, operations] of groupedOps) {
 				try {
-					console.log(`[SYNC] Procesando grupo ${groupId} con ${operations.length} operaciones`);
+					/* console.log(`[SYNC] Procesando grupo ${groupId} con ${operations.length} operaciones`); */
 
 					// Verificar si hay operaciones de productos pendientes
 					const hasProductOps = operations.some(op => op.table === 'products');
@@ -634,12 +667,12 @@ export const useSalesStore = create<SalesState>((set, get) => ({
 
 					for (const op of sortedOps) {
 						try {
-							console.log(`[SYNC] Ejecutando operación:`, {
+							/* console.log(`[SYNC] Ejecutando operación:`, {
 								id: op.id,
 								type: op.type,
 								table: op.table,
 								priority: op.priority
-							});
+							}); */
 
 							// Verificar que el producto existe antes de crear/actualizar sale_items
 							if (op.table === 'sale_items' && op.type === 'create') {
@@ -682,7 +715,7 @@ export const useSalesStore = create<SalesState>((set, get) => ({
 
 							// Marcar operación como completada
 							await db.pendingOperations.delete(op.id);
-							console.log(`[SYNC] Operación completada:`, op.id);
+							/* console.log(`[SYNC] Operación completada:`, op.id); */
 
 						} catch (error: any) {
 							console.error(`[SYNC] Error en operación ${op.id}:`, error);
@@ -704,7 +737,7 @@ export const useSalesStore = create<SalesState>((set, get) => ({
 			
 			// Recargar datos
 			await get().loadSales();
-			console.log('[SYNC] Sincronización completada exitosamente');
+			/* console.log('[SYNC] Sincronización completada exitosamente'); */
 
 		} catch (error) {
 			console.error('[SYNC] Error en sincronización:', error);

@@ -3,7 +3,7 @@ import { ShoppingBag, Store, CircleDollarSign, Blocks, Shirt, ShoppingCart, Powe
 import { useAuthStore } from '../store/auth';
 import { useProductsStore } from '../store/products';
 import { useSalesStore } from '../store/sales';
-import { Link, Routes, Route } from 'react-router-dom';
+import { Link, Routes, Route, useLocation } from 'react-router-dom';
 import DashboardStats from '../components/DashboardStats';
 import ProductList from '../components/ProductList';
 import ProductForm from '../components/ProductForm';
@@ -11,12 +11,13 @@ import NewSale from '../components/NewSale';
 import Sales from './Sales';
 
 export default function Dashboard() {
+	const location = useLocation();
 	const logout = useAuthStore((state) => state.logout);
 	const { loadProducts, loadCategories } = useProductsStore();
 	const { loadSales } = useSalesStore();
 	const [showNewProduct, setShowNewProduct] = useState(false);
 	const [showNewSale, setShowNewSale] = useState(false);
-	const [isMenuOpen, setIsMenuOpen] = useState(false);
+	// const [isMenuOpen, setIsMenuOpen] = useState(false);
 
 	useEffect(() => {
 		loadProducts();
@@ -49,9 +50,8 @@ export default function Dashboard() {
 					<div className="flex justify-center h-16">
 						<div className="flex items-center justify-center">
 							<Link
-								to="/"
-								className="px-3.5 py-2.5 rounded-md text-base font-medium text-gray-900 hover:bg-pink-200 hover:font-extrabold"
-								onClick={() => setIsMenuOpen(false)}
+								to="/stats"
+								className={`px-3.5 py-2.5 rounded-md text-base text-gray-900 hover:bg-pink-200 hover:font-extrabold ${location.pathname === '/stats' ? 'bg-pink-200 font-extrabold' : 'font-medium'}`}
 							>
 								<div className="flex flex-col items-center">
 									<CircleDollarSign className="mr-2" size={20} />
@@ -60,8 +60,7 @@ export default function Dashboard() {
 							</Link>
 							<Link
 								to="/products"
-								className="px-3.5 py-2.5 rounded-md text-base font-medium text-gray-900 hover:bg-pink-200 hover:font-extrabold"
-								onClick={() => setIsMenuOpen(false)}
+								className={`px-3.5 py-2.5 rounded-md text-base text-gray-900 hover:bg-pink-200 hover:font-extrabold ${location.pathname === '/products' ? 'bg-pink-200 font-extrabold' : 'font-medium'}`}
 							>
 								<div className="flex flex-col justify-center items-center">
 									<Blocks className="mr-2" size={20} />
@@ -70,8 +69,7 @@ export default function Dashboard() {
 							</Link>
 							<Link
 								to="/sales"
-								className="px-3.5 py-2.5 rounded-md text-base font-medium text-gray-900 hover:bg-pink-200 hover:font-extrabold"
-								onClick={() => setIsMenuOpen(false)}
+								className={`px-3.5 py-2.5 rounded-md text-base text-gray-900 hover:bg-pink-200 hover:font-extrabold ${location.pathname === '/sales' ? 'bg-pink-200 font-extrabold' : 'font-medium'}`}
 							>
 								<div className="flex flex-col justify-center items-center">
 									<ShoppingBag className="mr-2" size={20} />
@@ -85,7 +83,6 @@ export default function Dashboard() {
 						<button
 							onClick={() => {
 								setShowNewProduct(true);
-								setIsMenuOpen(false);
 							}}
 							className="flex items-center px-4 py-2 text-white bg-green-600 hover:bg-green-700 rounded-md"
 						>
@@ -94,7 +91,6 @@ export default function Dashboard() {
 						<button
 							onClick={() => {
 								setShowNewSale(true);
-								setIsMenuOpen(false);
 							}}
 							className="flex items-center px-4 py-2 text-white bg-indigo-600 hover:bg-indigo-700 rounded-md"
 						>
@@ -109,7 +105,7 @@ export default function Dashboard() {
                 <ProductList /> */}
 				<Routes>
 					<Route
-						path="/"
+						path="/stats"
 						element={
 							<>
 								<DashboardStats />

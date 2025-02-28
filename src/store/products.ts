@@ -347,11 +347,11 @@ export const useProductsStore = create<ProductsState>((set, get) => ({
 			for (const product of productsWithChanges) {
 				if (!product.pending_stock_changes) continue;
 
-				console.log('Procesando producto:', {
+				/* console.log('Procesando producto:', {
 					id: product.id,
 					pendingChanges: product.pending_stock_changes,
 					currentStock: product.stock,
-				});
+				}); */
 
 				const { data: currentProduct, error: selectError } = await supabase
 					.from('products')
@@ -368,12 +368,12 @@ export const useProductsStore = create<ProductsState>((set, get) => ({
 					const pendingChanges = product.pending_stock_changes || 0;
 					const newStock = Math.max(0, currentProduct.stock - pendingChanges);
 
-					console.log('Actualizando stock:', {
+					/* console.log('Actualizando stock:', {
 						id: product.id,
 						oldStock: currentProduct.stock,
 						pendingChanges: product.pending_stock_changes,
 						newStock,
-					});
+					}); */
 
 					const { error: updateError } = await supabase
 						.from('products')
@@ -387,10 +387,10 @@ export const useProductsStore = create<ProductsState>((set, get) => ({
 							pending_stock_changes: 0,
 						});
 
-						console.log('Stock actualizado correctamente:', {
+						/* console.log('Stock actualizado correctamente:', {
 							id: product.id,
 							newStock,
-						});
+						}); */
 					} else {
 						console.error('Error al actualizar stock:', updateError);
 					}

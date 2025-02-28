@@ -11,7 +11,6 @@ interface SalesPDFProps {
                 code: string;
 				name: string;
 				image_url: string | null;
-				is_deleted: boolean
 			};
 			quantity: number;
 			price: number;

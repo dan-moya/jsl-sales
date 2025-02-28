@@ -12,9 +12,9 @@ export default defineConfig({
                 id: '/',
 				name: 'LIS JSL - Sistema de Inventario',
 				short_name: 'LIS JSL',
-				description: 'Sistema de Gestión de Inventarios LIS JSL',
+				description: 'Sistema de Ventas e Invetario LIS-JSL',
 				theme_color: '#4f46e5',
-				background_color: '#ffffff',
+				background_color: '#fcb5ed',
 				display: 'standalone',
 				icons: [
 					{
