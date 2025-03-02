@@ -17,7 +17,6 @@ export default function Dashboard() {
 	const { loadSales } = useSalesStore();
 	const [showNewProduct, setShowNewProduct] = useState(false);
 	const [showNewSale, setShowNewSale] = useState(false);
-	// const [isMenuOpen, setIsMenuOpen] = useState(false);
 
 	useEffect(() => {
 		loadProducts();
@@ -101,15 +100,12 @@ export default function Dashboard() {
 			</nav>
 
 			<main className="max-w-7xl mx-auto pt-4 pb-6 px-4 sm:px-6 lg:px-8 bg-zinc-50">
-				{/* <DashboardStats />
-                <ProductList /> */}
 				<Routes>
 					<Route
 						path="/stats"
 						element={
 							<>
 								<DashboardStats />
-								{/* <ProductList /> */}
 							</>
 						}
 					/>

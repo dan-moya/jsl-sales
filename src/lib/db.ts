@@ -10,13 +10,6 @@ type Sale = Database['public']['Tables']['sales']['Row'];
 type SaleItem = Database['public']['Tables']['sale_items']['Row'];
 type Category = Database['public']['Tables']['categories']['Row'];
 
-export interface SaleReminder {
-	id: string;
-	saleId: string;
-	note?: string;
-	createdAt: string;
-	status: 'pending' | 'completed';
-}
 export interface PendingOperation {
 	id: string;
 	type: 'create' | 'update' | 'delete' | 'stock_update';
@@ -29,6 +22,14 @@ export interface PendingOperation {
 	priority: number;
 	parentId?: string;
 	groupId?: string;
+}
+
+export interface SaleReminder {
+	id: string;
+	saleId: string;
+	note?: string;
+	createdAt: string;
+	status: 'pending' | 'completed';
 }
 
 export class OfflineDB extends Dexie {
@@ -133,13 +134,14 @@ export class OfflineDB extends Dexie {
 	async clearAllData() {
         await this.transaction(
             'rw',
-            [this.products, this.sales, this.saleItems, this.categories, this.pendingOperations],
+            [this.products, this.sales, this.saleItems, this.categories, this.pendingOperations, this.saleReminders,],
             async () => {
                 await this.products.clear();
                 await this.sales.clear();
                 await this.saleItems.clear();
                 await this.categories.clear();
                 await this.pendingOperations.clear();
+				await this.saleReminders.clear();
             }
         );
     }

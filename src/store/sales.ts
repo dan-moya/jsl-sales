@@ -27,17 +27,11 @@ type PendingOperation = {
 	retryCount: number;
 };
 
-/* type SaleStats = {
-	totalAmount: number;
-	netProfit: number;
-	count: number;
-  }; */
-
-  type ProductSaleStats = {
+type ProductSaleStats = {
 	productId: string;
 	productName: string;
 	totalQuantity: number;
-  };
+};
 
 interface SalesState {
 	isOnline: boolean;
@@ -139,11 +133,6 @@ export const useSalesStore = create<SalesState>((set, get) => ({
 		  )
 		}));
 	  },
-	
-	/* loadReminders: async () => {
-		const reminders = await db.saleReminders.toArray();
-		set({ reminders });
-	}, */
 
 	loadReminders: async () => {
 		const reminders = await db.saleReminders.toArray();
@@ -164,6 +153,7 @@ export const useSalesStore = create<SalesState>((set, get) => ({
 			let salesData: SaleWithItems[] = [];
 
 			if (get().isOnline) {
+				// tabla particionada
 				const { data: sales, error: salesError } = await supabase
 					.from('sales')
 					.select('*')
@@ -272,6 +262,7 @@ export const useSalesStore = create<SalesState>((set, get) => ({
 		const saleItems = items.map((item) => ({
 			id: uuidv4(),
 			sale_id: saleId,
+			sale_date: now, // Nuevo campo para la clave foránea compuesta
 			product_id: item.productId,
 			quantity: item.quantity,
 			price: item.price,
@@ -281,7 +272,6 @@ export const useSalesStore = create<SalesState>((set, get) => ({
 		try {
 			await db.sales.add(newSale);
 			/* console.log('[OFFLINE] Venta guardada:', saleId); */
-
 			for (const item of saleItems) {
 				const product = await db.products.get(item.product_id);
 				if (product) {
@@ -329,14 +319,13 @@ export const useSalesStore = create<SalesState>((set, get) => ({
 			} else {
 				// Crear la venta con alta prioridad
 				await db.addPendingOperation('create', 'sales', newSale, 3, undefined, groupId);
-				
+
 				// Crear los items con prioridad menor y vinculados a la venta
 				for (const item of saleItems) {
 					await db.addPendingOperation('create', 'sale_items', item, 2, saleId, groupId);
 				}
 				/* console.log('[OFFLINE] Operaciones pendientes guardadas'); */
 			}
-
 			await get().loadSales();
 			await useProductsStore.getState().loadProducts();
 		} catch (error) {
@@ -345,43 +334,15 @@ export const useSalesStore = create<SalesState>((set, get) => ({
 		}
 	},
 
-	/** new */
-	// Función para archivar ventas antiguas
-	archiveOldSales: async (monthsOld: number) => {
-		if (!get().isOnline) return;
-	
-		try {
-		  await supabase.rpc('archive_old_sales', { months_old: monthsOld });
-		  await get().loadSales(); // Recargar ventas después del archivado
-		} catch (error) {
-		  console.error('Error al archivar ventas:', error);
-		  throw error;
-		}
-	  },
-
-	    // Función para obtener estadísticas usando la vista materializada
-  getMonthlyStats: async () => {
-    if (!get().isOnline) return null;
-
-    try {
-      const { data, error } = await supabase
-        .from('sales_stats')
-        .select('*')
-        .order('month', { ascending: false });
-
-      if (error) throw error;
-      return data;
-    } catch (error) {
-      console.error('Error al obtener estadísticas:', error);
-      return null;
-    }
-  },
-	/** new */
-
 	deleteSale: async (saleId: string) => {
 		try {
 			const saleItems = await db.saleItems.where('sale_id').equals(saleId).toArray();
 			const groupId = uuidv4(); // Generar un groupId único para todas las operaciones relacionadas
+			const sale = await db.sales.get(saleId);
+
+			if (!sale) {
+				throw new Error('Venta no encontrada');
+			}
 
 			if (get().isOnline) {
 				// Primero actualizar el stock
@@ -427,11 +388,18 @@ export const useSalesStore = create<SalesState>((set, get) => ({
 
 				// Primero eliminar los items con alta prioridad
 				for (const item of saleItems) {
-					await db.addPendingOperation('delete', 'sale_items', { id: item.id }, 3, undefined, groupId);
+					await db.addPendingOperation('delete', 'sale_items', { 
+						id: item.id,
+						sale_id: saleId,
+						sale_date: sale.date 
+					}, 3, undefined, groupId);
 				}
-				
+
 				// Luego eliminar la venta con menor prioridad
-				await db.addPendingOperation('delete', 'sales', { id: saleId }, 2, undefined, groupId);
+				await db.addPendingOperation('delete', 'sales', { 
+					id: saleId,
+					date: sale.date
+				}, 2, undefined, groupId);
 			}
 
 			// Actualizar estado local
@@ -502,6 +470,7 @@ export const useSalesStore = create<SalesState>((set, get) => ({
 					updatedSale.items.map(item => ({
 						id: item.id,
 						sale_id: updatedSale.id,
+						sale_date: updatedSale.date, // Incluir la fecha para la clave foránea compuesta
 						product_id: item.product.id,
 						quantity: item.quantity,
 						price: item.price,
@@ -536,7 +505,11 @@ export const useSalesStore = create<SalesState>((set, get) => ({
 					await db.addPendingOperation(
 						'delete',
 						'sale_items',
-						{ id: item.id },
+						{
+							id: item.id,
+							sale_id: updatedSale.id,
+							sale_date: updatedSale.date
+						},
 						4, // Prioridad más alta
 						updatedSale.id,
 						groupId
@@ -564,6 +537,7 @@ export const useSalesStore = create<SalesState>((set, get) => ({
 					const newItemData = {
 						id: uuidv4(),
 						sale_id: updatedSale.id,
+						sale_date: updatedSale.date,
 						product_id: item.product.id,
 						quantity: item.quantity,
 						price: item.price,
@@ -845,4 +819,4 @@ async function processSalesData(sales: SaleWithItems[], set: (state: Partial<Sal
 		mostSoldOverall: getMostSold(overallStats)
 	  }
 	});
-  }
+}

@@ -88,6 +88,7 @@ export interface Database {
 				Row: {
 					id: string;
 					sale_id: string;
+					sale_date?: string; // Nuevo campo para la clave foránea compuesta
 					product_id: string;
 					quantity: number;
 					price: number;
@@ -96,6 +97,7 @@ export interface Database {
 				Insert: {
 					id?: string;
 					sale_id: string;
+					sale_date?: string; // Nuevo campo para la clave foránea compuesta
 					product_id: string;
 					quantity: number;
 					price: number;
@@ -104,6 +106,7 @@ export interface Database {
 				Update: {
 					id?: string;
 					sale_id?: string;
+					sale_date?: string; // Nuevo campo para la clave foránea compuesta
 					product_id?: string;
 					quantity?: number;
 					price?: number;
